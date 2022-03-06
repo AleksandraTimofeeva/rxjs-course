@@ -16,6 +16,7 @@ import {
 } from 'rxjs';
 import {delayWhen, filter, map, take, timeout} from 'rxjs/operators';
 import {createHttpObservable} from '../common/util';
+import {response} from "express";
 
 
 @Component({
@@ -26,11 +27,28 @@ import {createHttpObservable} from '../common/util';
 export class AboutComponent implements OnInit {
 
     ngOnInit() {
+      const http$ = Observable.create(observer => {
+          fetch('api/courses')
+            .then(response => {
+              return response.json();
+            })
 
+            .then(body => {
+              observer.next(body);
+              observer.complete();
+            })
 
+            .catch(err => {
+              observer.error(err);
+            })
+      });
+
+      http$.subscribe(
+        courses => console.log(courses),
+        noop(),
+        () => console.log('completed')
+      );
     }
-
-
 }
 
 
