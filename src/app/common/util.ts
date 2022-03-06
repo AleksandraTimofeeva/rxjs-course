@@ -1,38 +1,55 @@
 import {Observable} from 'rxjs';
 
-
 export function createHttpObservable(url:string) {
-    return Observable.create(observer => {
+  return Observable.create(observer => {
+    fetch('api/courses')
+      .then(response => {
+        return response.json();
+      })
 
-        const controller = new AbortController();
-        const signal = controller.signal;
+      .then(body => {
+        observer.next(body);
+        observer.complete();
+      })
 
-        fetch(url, {signal})
-            .then(response => {
-
-                if (response.ok) {
-                    return response.json();
-                }
-                else {
-                    observer.error('Request failed with status code: ' + response.status);
-                }
-            })
-            .then(body => {
-
-                observer.next(body);
-
-                observer.complete();
-
-            })
-            .catch(err => {
-
-                observer.error(err);
-
-            });
-
-        return () => controller.abort()
-
-
-    });
+      .catch(err => {
+        observer.error(err);
+      })
+  });
 }
+
+// export function createHttpObservable(url:string) {
+//     return Observable.create(observer => {
+//
+//         const controller = new AbortController();
+//         const signal = controller.signal;
+//
+//         fetch(url, {signal})
+//             .then(response => {
+//
+//                 if (response.ok) {
+//                     return response.json();
+//                 }
+//                 else {
+//                     observer.error('Request failed with status code: ' + response.status);
+//                 }
+//             })
+//             .then(body => {
+//
+//                 observer.next(body);
+//
+//                 observer.complete();
+//
+//             })
+//             .catch(err => {
+//
+//                 observer.error(err);
+//
+//             });
+//
+//         return () => controller.abort()
+//
+//
+//     });
+// }
 

@@ -27,23 +27,14 @@ import {response} from "express";
 export class AboutComponent implements OnInit {
 
     ngOnInit() {
-      const http$ = Observable.create(observer => {
-          fetch('api/courses')
-            .then(response => {
-              return response.json();
-            })
+      const http$ = createHttpObservable('/api/courses');
 
-            .then(body => {
-              observer.next(body);
-              observer.complete();
-            })
+      const courses$ = http$
+        .pipe(
+          map(res => Object.values(res["payload"]) )
+        )
 
-            .catch(err => {
-              observer.error(err);
-            })
-      });
-
-      http$.subscribe(
+      courses$.subscribe(
         courses => console.log(courses),
         noop(),
         () => console.log('completed')
