@@ -39,23 +39,25 @@ export class CourseDialogComponent implements OnInit {
     ngOnInit() {
       this.form.valueChanges
         .pipe(
-          filter(() => this.form.valid)
+          filter(() => this.form.valid),
+          concatMap(changes => this.saveCourse(changes))
         )
-        .subscribe(changes => {
-          const saveCourse$ = fromPromise(fetch(`/api/courses/${this.course.id}`,{
-              method: 'PUT',
-              body: JSON.stringify(changes),
-              headers: {
-                'content-type': 'application/json'
-              }
-            }));
-        }
-      )
+        .subscribe()
 
     }
 
     ngAfterViewInit() {
 
+    }
+
+    saveCourse(changes) {
+      return fromPromise(fetch(`/api/courses/${this.course.id}`,{
+        method: 'PUT',
+        body: JSON.stringify(changes),
+        headers: {
+          'content-type': 'application/json'
+        }
+      }));
     }
 
     // save() {
