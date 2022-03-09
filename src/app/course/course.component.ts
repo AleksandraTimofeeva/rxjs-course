@@ -26,6 +26,8 @@ import {Store} from '../common/store.service';
 })
 export class CourseComponent implements OnInit, AfterViewInit {
 
+    courseId = this.route.snapshot.params['id'];
+
     course$ : Observable<Course>;
     lessons$: Observable<Lesson[]>;
 
@@ -35,10 +37,10 @@ export class CourseComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit() {
-        const courseId = this.route.snapshot.params['id'];
-        this.course$ = createHttpObservable(`/api/courses/${courseId}`);
+        this.courseId = this.route.snapshot.params['id'];
+        this.course$ = createHttpObservable(`/api/courses/${this.courseId}`);
         this.lessons$ = createHttpObservable(
-               `/api/lessons?courseId=${courseId}&pageSize=100`)
+               `/api/lessons?courseId=${this.courseId}&pageSize=100`)
                .pipe(
                    map(res => res["payload"])
                );
@@ -50,22 +52,22 @@ export class CourseComponent implements OnInit, AfterViewInit {
                 map(event => event.target.value),
                 debounceTime(400),
                 distinctUntilChanged(),
-                // switchMap(search => this.loadLessons(search))
-            ).subscribe(console.log);
+                switchMap(search => this.loadLessons(search))
+            )
 
-        // const initialLessons$ = this.loadLessons();
+        const initialLessons$ = this.loadLessons();
 
-        // this.lessons$ = concat(initialLessons$, searchLessons$);
+        this.lessons$ = concat(initialLessons$, searchLessons$);
 
     }
 
-    // loadLessons(search = ''): Observable<Lesson[]> {
-    //     return createHttpObservable(
-    //         `/api/lessons?courseId=${this.courseId}&pageSize=100&filter=${search}`)
-    //         .pipe(
-    //             map(res => res["payload"])
-    //         );
-    // }
+    loadLessons(search = ''): Observable<Lesson[]> {
+        return createHttpObservable(
+            `/api/lessons?courseId=${this.courseId}&pageSize=100&filter=${search}`)
+            .pipe(
+                map(res => res["payload"])
+            );
+    }
 
 
 }
